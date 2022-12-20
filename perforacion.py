@@ -8,6 +8,12 @@ class Perforacion:
         self.titulo_ventana = titulo_ventana
         self.pantalla = None
         self.running = True
+        self.postaladro = [50, 240]
+        self.angulo_taladro = 1
+        self.taladro = pygame.image.load("taladro.png")
+        self.taladro_vector = pygame.Vector2()
+        self.taladro_vector.xy = 0, -5
+        self.clock = pygame.time.Clock()
 
     def Inicio_Juego(self):
         pygame.display.set_caption(self.titulo_ventana)
@@ -27,16 +33,34 @@ class Perforacion:
         #Luego el cielo
         pygame.draw.rect(self.pantalla, self.color_cielo, (0, 0, self.dimension_ventana[0], self.dimension_ventana[1]/2))
 
+    def Taladra(self):
+        pass
+
     def Bucle_Juego(self):
         while self.running == True:
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
                     self.running = False
 
+            pygame.Surface.set_colorkey (self.taladro, [105,255,0])
+            self.angulo_taladro = self.angulo_taladro+3
+            nuevo_vector = self.taladro_vector.rotate(self.angulo_taladro)
+            print(nuevo_vector)
+            self.postaladro[0] += 1
+            if self.postaladro[0] >= 400:
+                self.postaladro[0] = 1
+
+            self.postaladro[0] = self.postaladro[0] + nuevo_vector[0]
+            self.postaladro[1] = self.postaladro[1] + nuevo_vector[1]
+            self.pantalla.fill(self.color_tierra)
+            self.pantalla.blit(self.taladro, (self.postaladro[0], self.postaladro[1]))
             pygame.display.flip()
+            self.clock.tick(30)
+            
 
         #Limpiando pygame
         pygame.quit()
+        
 
 
 
