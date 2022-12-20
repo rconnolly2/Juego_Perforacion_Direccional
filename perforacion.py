@@ -18,9 +18,14 @@ class Perforacion:
             print("Error: parametro dimension_vetnana no es valido al crear el objeto")
 
         try:
-            self.pantalla.fill(self.color_cielo)
+            #Primero dibujo la tierra
+            self.pantalla.fill(self.color_tierra)
         except:
             print("Error: parametro color_cielo no es valido al crear el objeto")
+        #Luego el lago que esta entre el suelo y el cielo
+        pygame.draw.ellipse(self.pantalla, (0, 45, 243), (((self.dimension_ventana[0]/2)-(200/2)), (self.dimension_ventana[1]/2-70), 200, 150))
+        #Luego el cielo
+        pygame.draw.rect(self.pantalla, self.color_cielo, (0, 0, self.dimension_ventana[0], self.dimension_ventana[1]/2))
 
     def Bucle_Juego(self):
         while self.running == True:
@@ -35,6 +40,6 @@ class Perforacion:
 
 
 
-juego = Perforacion((500, 500), (255, 0, 0), (255, 255, 0), "Juego perforacion direccional")
+juego = Perforacion((500, 500), (155, 102, 72), (208, 253, 255), "Juego perforacion direccional")
 juego.Inicio_Juego()
 juego.Bucle_Juego()
