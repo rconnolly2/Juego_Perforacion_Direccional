@@ -10,16 +10,16 @@ class Perforacion:
         self.pantalla = None
         self.running = True
         self.postaladro = [50, 240]
-        self.prueba = [50, 240]
-        self.angulo_prueba = 90
-        self.prueba_img = pygame.image.load("taladro.png")
+        self.angulo_prueba = 0
         self.angulo_taladro = 0
         self.taladro = pygame.image.load("taladro.png")
-        self.taladro_vector = pygame.Vector2()
-        self.taladro_vector.xy = 6, 0
+        self.taladro_vector = pygame.Vector2(6, 0)
         self.clock = pygame.time.Clock()
         self.lista_puntos_camino = []
         self.direccion = 1
+        self.tierra_img = pygame.image.load("tierra.png")
+        self.hdd_img = pygame.image.load("hdd.png")
+        self.hdd_pos = (0, 150)
 
     def Inicio_Juego(self):
         pygame.display.set_caption(self.titulo_ventana)
@@ -27,17 +27,24 @@ class Perforacion:
         try:
             self.pantalla = pygame.display.set_mode(self.dimension_ventana)
         except:
-            print("Error: parametro dimension_vetnana no es valido al crear el objeto")
+            print("Error: parametro dimension_ventana no es valido al crear el objeto")
 
+    
+
+    def Dibujar_Fondo(self, pantalla):
+        #Primero dibujamos la tierra:
+        pantalla.blit(self.tierra_img, (0, 250))
+        #Luego el lago encima de la tierra
+        pygame.draw.ellipse(pantalla, (0, 45, 243), (((self.dimension_ventana[0]/2)-(200/2)), (self.dimension_ventana[1]/2-70), 200, 150))
+        #Ahora el cielo:
         try:
-            #Primero dibujo la tierra
-            self.pantalla.fill(self.color_tierra)
+            pygame.draw.rect(pantalla, self.color_cielo, (0, 0, self.dimension_ventana[0], self.dimension_ventana[1]/2))
         except:
             print("Error: parametro color_cielo no es valido al crear el objeto")
-        #Luego el lago que esta entre el suelo y el cielo
-        pygame.draw.ellipse(self.pantalla, (0, 45, 243), (((self.dimension_ventana[0]/2)-(200/2)), (self.dimension_ventana[1]/2-70), 200, 150))
-        #Luego el cielo
-        pygame.draw.rect(self.pantalla, self.color_cielo, (0, 0, self.dimension_ventana[0], self.dimension_ventana[1]/2))
+
+        #Dibujamos el hdd:
+        pantalla.blit(self.hdd_img, self.hdd_pos)
+
 
     def Rotar_Centro(imagen, angulo, x, y):
         imagen_rotada = pygame.transform.rotate(imagen, angulo)
@@ -58,6 +65,7 @@ class Perforacion:
                 xfinal = lista_de_puntos[iterador-1][0]
                 yfinal = lista_de_puntos[iterador-1][1]
                 pygame.draw.line(pantalla, (255, 0, 0), (x, y), (xfinal, yfinal), 2)
+                
 
             iterador = iterador+1
             
@@ -72,6 +80,8 @@ class Perforacion:
                 if evento.type == pygame.KEYUP:
                     self.direccion = self.direccion*-1
 
+            #Pintamos fondo:
+            self.Dibujar_Fondo(self.pantalla)
 
             if self.angulo_taladro > 6.28:
                 self.angulo_taladro = 0
@@ -96,13 +106,13 @@ class Perforacion:
             #Añadimos nueva posicion de camino a nustra lista de puntos del camino :
             self.lista_puntos_camino.append([self.postaladro[0], self.postaladro[1]])
 
-            self.pantalla.fill(self.color_tierra)
+            #self.pantalla.fill(self.color_tierra)
 
             #Pìnto lista camino:
             self.Pintar_Camino(self.lista_puntos_camino, self.pantalla)
 
             # Añadimos un grado cada llamada
-            self.angulo_prueba = self.angulo_prueba + 1*self.direccion
+            self.angulo_prueba = self.angulo_prueba + 1.6*self.direccion
             #Añadimos mas angulo para que parezca una escavadora:
 
             # Almacenamos la imagen rotada en una nueva imagen ya que sino se distorsiona
