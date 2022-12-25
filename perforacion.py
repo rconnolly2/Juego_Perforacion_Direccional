@@ -18,8 +18,11 @@ class Perforacion:
         self.lista_puntos_camino = []
         self.direccion = 1
         self.tierra_img = pygame.image.load("tierra.png")
-        self.hdd_img = pygame.image.load("hdd.png")
         self.hdd_pos = (0, 150)
+        #Fotograma animacion
+        self.hdd_img = pygame.image.load("hdd1.png")
+        self.fotograma = 0
+        self.timer_animacion = 0
 
     def Inicio_Juego(self):
         pygame.display.set_caption(self.titulo_ventana)
@@ -29,7 +32,23 @@ class Perforacion:
         except:
             print("Error: parametro dimension_ventana no es valido al crear el objeto")
 
-    
+    def Animacion_HDD(self, pantalla):
+            if (self.fotograma >= 1 and self.fotograma <= 5):
+                
+                archivo = ("hdd" + str(self.fotograma) + ".png")
+                print(self.timer_animacion)
+                self.hdd_img = pygame.image.load(archivo)
+                self.hdd_img.set_colorkey((54, 255, 0))
+                pantalla.blit(self.hdd_img, self.hdd_pos)
+                self.fotograma = self.fotograma+1
+
+                #Reseteamos timer:
+                self.timer_animacion = 0
+
+            else:
+                self.fotograma = 1
+                #Añadimos tick a timer:
+                self.timer_animacion = self.timer_animacion+1
 
     def Dibujar_Fondo(self, pantalla):
         #Primero dibujamos la tierra:
@@ -43,7 +62,7 @@ class Perforacion:
             print("Error: parametro color_cielo no es valido al crear el objeto")
 
         #Dibujamos el hdd:
-        pantalla.blit(self.hdd_img, self.hdd_pos)
+        self.Animacion_HDD(self.pantalla)
 
 
     def Rotar_Centro(imagen, angulo, x, y):
@@ -64,10 +83,22 @@ class Perforacion:
             else:
                 xfinal = lista_de_puntos[iterador-1][0]
                 yfinal = lista_de_puntos[iterador-1][1]
-                pygame.draw.line(pantalla, (255, 0, 0), (x, y), (xfinal, yfinal), 2)
+                pygame.draw.line(pantalla, (255, 255, 255), (x, y), (xfinal, yfinal), 2)
                 
 
             iterador = iterador+1
+
+    def Pintar_Camino_De_Tierra(self, lista_de_puntos, pantalla):
+        
+        for puntos in lista_de_puntos:
+            x = puntos[0]
+            y = puntos[1]
+
+            #Solo pintamos si esta a una altura menor de la tierra:
+            #Que es si la posicion del taladro si es mayor que la mitad de la altura de ventana + 5
+            if y > ((self.dimension_ventana[0]/2)+5):
+                pygame.draw.circle(pantalla, (121, 84, 66), (x, y), 10)
+                
             
 
     def Bucle_Juego(self):
@@ -82,6 +113,7 @@ class Perforacion:
 
             #Pintamos fondo:
             self.Dibujar_Fondo(self.pantalla)
+            self.Animacion_HDD(self.pantalla)
 
             if self.angulo_taladro > 6.28:
                 self.angulo_taladro = 0
@@ -106,8 +138,9 @@ class Perforacion:
             #Añadimos nueva posicion de camino a nustra lista de puntos del camino :
             self.lista_puntos_camino.append([self.postaladro[0], self.postaladro[1]])
 
-            #self.pantalla.fill(self.color_tierra)
 
+            #Primero pintamos la tierra removida por el camino
+            self.Pintar_Camino_De_Tierra(self.lista_puntos_camino, self.pantalla)
             #Pìnto lista camino:
             self.Pintar_Camino(self.lista_puntos_camino, self.pantalla)
 
@@ -122,7 +155,7 @@ class Perforacion:
             self.pantalla.blit(taladro_rot, (self.postaladro[0]-(rect_taladro_rot.width/2), self.postaladro[1]-(rect_taladro_rot.height/2)))
             
             pygame.display.flip()
-            self.clock.tick(15)
+            self.clock.tick(10)
             
 
         #Limpiando pygame
