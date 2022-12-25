@@ -1,6 +1,6 @@
 import pygame
 import math
-
+import random
 class Perforacion:
     def __init__(self, dimension_ventana: tuple, color_tierra: tuple, color_cielo: tuple, titulo_ventana: str):
         self.dimension_ventana = dimension_ventana
@@ -23,6 +23,8 @@ class Perforacion:
         self.hdd_img = pygame.image.load("hdd1.png")
         self.fotograma = 0
         self.timer_animacion = 0
+        self.lista_pos_obstaculos = []
+        self.obstaculos_visibles = []
 
     def Inicio_Juego(self):
         pygame.display.set_caption(self.titulo_ventana)
@@ -31,6 +33,55 @@ class Perforacion:
             self.pantalla = pygame.display.set_mode(self.dimension_ventana)
         except:
             print("Error: parametro dimension_ventana no es valido al crear el objeto")
+
+        self.Crear_Obstaculos(self.pantalla, 5, self.lista_pos_obstaculos)
+
+
+    def Distancia_Entre_2_Puntos(self, x1, y1, x2, y2):
+        return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+
+    def Imprimir_Obstaculo(self, pos_taladro: list, lista_pos_obstaculos: list, lista_obstaculos_detectados: list):
+        """
+        Esta funcion detecta si el pos_taladro=>Esta a una distancia de menos de 70 de
+        lista_pos_obstaculos "Que han sido generados anteriormente" si es asi lo 
+        añadimos a => lista_obstaculos_detectados
+
+        Tambien esta funcion imprime en pantalla toda la lista lista_obstaculos_detectados
+        Parametros:
+
+        pos_taladro => es una lista con la posicion del taladro ej [x, y]
+
+        lista_pos_obstaculos => es una lista con todos los obstaculos generados aleatoriamente
+
+        lista_obstaculos_detectados => es una lista que tiene todos los obstaculos detectados por taladro ej [xy, xy, ...]
+
+
+        """
+        x1, y1 = pos_taladro
+        for i in range(len(lista_pos_obstaculos)):
+            x2, y2 = lista_pos_obstaculos[i]
+
+            #Comprobamos si los dos puntos tienen una distance de menos de 70:
+            #Si es asi añadimos a nuestra lista de obstaculos visibles
+
+            if self.Distancia_Entre_2_Puntos(x1, y1, x2, y2) < 70:
+                print("Menos de 10 distancia")
+                #Añdimos el elemento que esta cerca del taladro a nuestra lista de objetos visibles
+                #Para luego imprimirlo por pantalla
+                self.obstaculos_visibles.append(lista_pos_obstaculos[i])
+        
+        #Ahora imprimimos todos los obstaculos que hemos detectado anteriormente
+        for a in range(len(lista_obstaculos_detectados)):
+
+            #Imprimimos cada obs de la lista:
+            self.pantalla.blit(self.taladro, lista_obstaculos_detectados[a])
+
+
+    def Crear_Obstaculos(self, pantalla, numero_obstaculos, lista_pos_obstaculos):
+        for obstaculo in range(numero_obstaculos):
+            pos_obstaculo = [random.randint(0, self.dimension_ventana[0]), random.randint(270, self.dimension_ventana[0])]
+            #Añadimos nuestra posicion aleatoria de alto entre 270 y 500 y ancho de 0 a 500
+            lista_pos_obstaculos.append(pos_obstaculo)
 
     def Animacion_HDD(self, pantalla):
             if (self.fotograma >= 1 and self.fotograma <= 5):
@@ -114,6 +165,9 @@ class Perforacion:
             #Pintamos fondo:
             self.Dibujar_Fondo(self.pantalla)
             self.Animacion_HDD(self.pantalla)
+
+            #Imprimimos obstaculos
+            self.Imprimir_Obstaculo(self.postaladro, self.lista_pos_obstaculos, self.obstaculos_visibles)
 
             if self.angulo_taladro > 6.28:
                 self.angulo_taladro = 0
