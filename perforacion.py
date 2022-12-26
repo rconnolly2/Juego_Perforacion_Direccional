@@ -20,9 +20,11 @@ class Perforacion:
         self.tierra_img = pygame.image.load("tierra.png")
         self.hdd_pos = (0, 150)
         #Fotograma animacion
-        self.hdd_img = pygame.image.load("hdd1.png")
+        self.hdd_img = None
         self.fotograma = 0
         self.timer_animacion = 0
+        #Obstaculos
+        self.obstaculo_img = pygame.image.load("obstaculo.png")
         self.lista_pos_obstaculos = []
         self.obstaculos_visibles = []
 
@@ -36,6 +38,28 @@ class Perforacion:
 
         self.Crear_Obstaculos(self.pantalla, 5, self.lista_pos_obstaculos)
 
+    def Taladro_Sale_Mapa(self, posicion_taladro):
+        #Si el taladro sale de las Dimensiones del juego cierra izquierda y derecha:
+        if posicion_taladro[0] < 0 or posicion_taladro[0] > self.dimension_ventana[0]:
+            self.running = False
+        
+        #O de la tierra por arriba y por abajo:
+        if posicion_taladro[1] > self.dimension_ventana[1] or posicion_taladro[1] < 240:
+            self.running = False
+            
+    def Colision_Taladro(self, pos_taladro, lista_obstaculos_pos):
+        x1 = pos_taladro[0]
+        y1 = pos_taladro[1]
+        #Miramos la distancia entre cada obstaculo y taladro si es inferior a 10
+        for obstaculo in range(len(lista_obstaculos_pos)):
+            x2 = lista_obstaculos_pos[obstaculo][0]
+            y2 = lista_obstaculos_pos[obstaculo][1]
+            ancho = self.obstaculo_img.get_width()
+
+            if x1 >= x2 and x2 + ancho >= x1:
+                #Colision alto
+                if y1 >= y2 and y2 + ancho >= y1:
+                    self.running = False
 
     def Distancia_Entre_2_Puntos(self, x1, y1, x2, y2):
         return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
@@ -65,16 +89,17 @@ class Perforacion:
             #Si es asi añadimos a nuestra lista de obstaculos visibles
 
             if self.Distancia_Entre_2_Puntos(x1, y1, x2, y2) < 70:
-                print("Menos de 10 distancia")
                 #Añdimos el elemento que esta cerca del taladro a nuestra lista de objetos visibles
                 #Para luego imprimirlo por pantalla
                 self.obstaculos_visibles.append(lista_pos_obstaculos[i])
+                
         
         #Ahora imprimimos todos los obstaculos que hemos detectado anteriormente
         for a in range(len(lista_obstaculos_detectados)):
 
             #Imprimimos cada obs de la lista:
-            self.pantalla.blit(self.taladro, lista_obstaculos_detectados[a])
+            pygame.Surface.set_colorkey (self.obstaculo_img, (54,255,0))
+            self.pantalla.blit(self.obstaculo_img, lista_obstaculos_detectados[a])
 
 
     def Crear_Obstaculos(self, pantalla, numero_obstaculos, lista_pos_obstaculos):
@@ -87,7 +112,6 @@ class Perforacion:
             if (self.fotograma >= 1 and self.fotograma <= 5):
                 
                 archivo = ("hdd" + str(self.fotograma) + ".png")
-                print(self.timer_animacion)
                 self.hdd_img = pygame.image.load(archivo)
                 self.hdd_img.set_colorkey((54, 255, 0))
                 pantalla.blit(self.hdd_img, self.hdd_pos)
@@ -162,6 +186,9 @@ class Perforacion:
                 if evento.type == pygame.KEYUP:
                     self.direccion = self.direccion*-1
 
+            #Primero miramos si posicion de taladro sale del mapa si es asi cierra el juego:
+            self.Taladro_Sale_Mapa(self.postaladro)
+
             #Pintamos fondo:
             self.Dibujar_Fondo(self.pantalla)
             self.Animacion_HDD(self.pantalla)
@@ -169,19 +196,17 @@ class Perforacion:
             #Imprimimos obstaculos
             self.Imprimir_Obstaculo(self.postaladro, self.lista_pos_obstaculos, self.obstaculos_visibles)
 
+            #Comprobamos que taladro colisiona con obstaculo si es asi cierra:
+            self.Colision_Taladro(self.postaladro, self.lista_pos_obstaculos)
+
             if self.angulo_taladro > 6.28:
                 self.angulo_taladro = 0
             self.angulo_taladro = self.angulo_taladro+0.057*self.direccion
-            #nuevo_vector = self.taladro_vector.rotate(self.angulo_taladro) Funcion vector
+
             nuevo_vector = [None, None]
             nuevo_vector[0] = (((self.taladro_vector[0]*math.cos(self.angulo_taladro)) - (self.taladro_vector[1]*math.sin(self.angulo_taladro))))
             nuevo_vector[1] = (((self.taladro_vector[0]*math.sin(self.angulo_taladro)) + (self.taladro_vector[1]*math.cos(self.angulo_taladro))))
 
-
-            print(nuevo_vector)
-            #self.postaladro[0] += 1
-            if self.postaladro[0] >= 400:
-                self.postaladro[0] = 1
 
             if self.angulo_prueba > 360:
                 self.angulo_prueba = 0
