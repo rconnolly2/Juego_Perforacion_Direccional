@@ -36,7 +36,30 @@ class Perforacion:
         except:
             print("Error: parametro dimension_ventana no es valido al crear el objeto")
 
-        self.Crear_Obstaculos(self.pantalla, 5, self.lista_pos_obstaculos)
+        self.Crear_Obstaculos(self.pantalla, 10, self.lista_pos_obstaculos)
+
+    def Taladro_Dentro_Lago(self, pos_taladro: list, centro_circulo: list, radio_circulo: int):
+        """
+        Esta funcion coge la posicion de taladro y el centro del ciruclo y si
+        es inferior al radio del circulo radio_cirulo el juego se acaba
+
+        pos_taladro => La posicion del taladro ej [x, y]
+
+        centro_circulo => La posicion central del circulo ej [x, y]
+
+        radio_circulo => El radio del ciruclo ej: 6
+
+        """
+        x1 = pos_taladro[0]
+        y1 = pos_taladro[1]
+
+        x2 = centro_circulo[0]
+        y2 = centro_circulo[1]
+
+        #Si el taladro entra al radio del ciruclo "colisiona" se acaba el juego
+        if self.Distancia_Entre_2_Puntos(x1, y1, x2, y2) < radio_circulo:
+            self.running = False
+
 
     def Taladro_Sale_Mapa(self, posicion_taladro):
         #Si el taladro sale de las Dimensiones del juego cierra izquierda y derecha:
@@ -129,7 +152,7 @@ class Perforacion:
         #Primero dibujamos la tierra:
         pantalla.blit(self.tierra_img, (0, 250))
         #Luego el lago encima de la tierra
-        pygame.draw.ellipse(pantalla, (0, 45, 243), (((self.dimension_ventana[0]/2)-(200/2)), (self.dimension_ventana[1]/2-70), 200, 150))
+        pygame.draw.circle(pantalla, (0, 45, 243), ((self.dimension_ventana[0]/2), (self.dimension_ventana[1]/2-70)), 140)
         #Ahora el cielo:
         try:
             pygame.draw.rect(pantalla, self.color_cielo, (0, 0, self.dimension_ventana[0], self.dimension_ventana[1]/2))
@@ -198,6 +221,9 @@ class Perforacion:
 
             #Comprobamos que taladro colisiona con obstaculo si es asi cierra:
             self.Colision_Taladro(self.postaladro, self.lista_pos_obstaculos)
+
+            #Comprobamos que taladro entra al lago si es asi se acaba el juego:
+            self.Taladro_Dentro_Lago(self.postaladro, ((self.dimension_ventana[0]/2), (self.dimension_ventana[1]/2-70)), 140)
 
             if self.angulo_taladro > 6.28:
                 self.angulo_taladro = 0
