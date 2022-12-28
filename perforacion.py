@@ -29,6 +29,10 @@ class Perforacion:
         self.obstaculos_visibles = []
         #Objetivo
         self.objetivo = pygame.image.load("goal.png")
+        #Texto
+        #Inicio de pygame para fuentes que lo requiere:
+        pygame.init()
+        self.fuente = pygame.font.Font(pygame.font.get_default_font(), 36)
 
     def Inicio_Juego(self):
         pygame.display.set_caption(self.titulo_ventana)
@@ -39,6 +43,31 @@ class Perforacion:
             print("Error: parametro dimension_ventana no es valido al crear el objeto")
 
         self.Crear_Obstaculos(self.pantalla, 10, self.lista_pos_obstaculos)
+
+    def End_Screen(self, ganas: bool, pantalla):
+        texto_ganas = "Has Ganado!"
+        texto_pierdes = "Has Perdido!"
+        pos_texto = (self.dimension_ventana[0]/2-120, self.dimension_ventana[0]/2) #Centro pantalla
+        
+        if ganas == False:
+            pantalla.fill((255, 115, 115))
+            text_surface = self.fuente.render(texto_pierdes, True, (0, 0, 0))
+            #Dibujamos el texto en el centro de la pantalla:
+            self.pantalla.blit(text_surface, pos_texto)
+            pygame.display.flip()
+            pygame.time.delay(1000)
+            self.running = False
+            return self.Bucle_Juego() #Volvemos a la funcion bucle para que se acabe el juego
+
+        if ganas == True:
+            pantalla.fill((202, 255, 115))
+            text_surface = self.fuente.render(texto_ganas, True, (0, 0, 0))
+            #Dibujamos el texto en el centro de la pantalla:
+            self.pantalla.blit(text_surface, pos_texto)
+            pygame.display.flip()
+            pygame.time.delay(1000)
+            self.running = False
+            return self.Bucle_Juego() #Volvemos a la funcion bucle para que se acabe el juego
 
     def Taladro_Dentro_Lago(self, pos_taladro: list, centro_circulo: list, radio_circulo: int):
         """
@@ -78,16 +107,16 @@ class Perforacion:
         y2 = pos_objetivo[1]
         if x1 < x2 + ancho_objetivo and x1 > x2 and y1 < y2 + ancho_objetivo and y1 > y2:
             print("Final juego ganas")
-            self.running = False
+            self.End_Screen(True, self.pantalla)
 
     def Taladro_Sale_Mapa(self, posicion_taladro):
         #Si el taladro sale de las Dimensiones del juego cierra izquierda y derecha:
         if posicion_taladro[0] < 0 or posicion_taladro[0] > self.dimension_ventana[0]:
-            self.running = False
+            self.End_Screen(False, self.pantalla)
         
         #O de la tierra por arriba y por abajo:
         if posicion_taladro[1] > self.dimension_ventana[1] or posicion_taladro[1] < 240:
-            self.running = False
+            self.End_Screen(False, self.pantalla)
             
     def Colision_Taladro(self, pos_taladro, lista_obstaculos_pos):
         x1 = pos_taladro[0]
@@ -101,7 +130,7 @@ class Perforacion:
             if x1 >= x2 and x2 + ancho >= x1:
                 #Colision alto
                 if y1 >= y2 and y2 + ancho >= y1:
-                    self.running = False
+                    self.End_Screen(False, self.pantalla) #Pierdes pantalla
 
     def Distancia_Entre_2_Puntos(self, x1, y1, x2, y2):
         return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
