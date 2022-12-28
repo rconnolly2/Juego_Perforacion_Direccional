@@ -11,7 +11,7 @@ Pygame, esta inspirado en https://en.wikipedia.org/wiki/Directional_drilling
 
 ## Gameplay
 
-![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
+![GIF del gameplay](https://i.ibb.co/c3276NS/gameplay.gif)
 
 
 ## 💻Requisitos
