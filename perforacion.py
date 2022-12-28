@@ -27,6 +27,8 @@ class Perforacion:
         self.obstaculo_img = pygame.image.load("obstaculo.png")
         self.lista_pos_obstaculos = []
         self.obstaculos_visibles = []
+        #Objetivo
+        self.objetivo = pygame.image.load("goal.png")
 
     def Inicio_Juego(self):
         pygame.display.set_caption(self.titulo_ventana)
@@ -40,14 +42,14 @@ class Perforacion:
 
     def Taladro_Dentro_Lago(self, pos_taladro: list, centro_circulo: list, radio_circulo: int):
         """
-        Esta funcion coge la posicion de taladro y el centro del ciruclo y si
+        Esta funcion coge la posicion de taladro y el centro del circulo y si
         es inferior al radio del circulo radio_cirulo el juego se acaba
 
         pos_taladro => La posicion del taladro ej [x, y]
 
         centro_circulo => La posicion central del circulo ej [x, y]
 
-        radio_circulo => El radio del ciruclo ej: 6
+        radio_circulo => El radio del circulo ej: 6
 
         """
         x1 = pos_taladro[0]
@@ -56,10 +58,27 @@ class Perforacion:
         x2 = centro_circulo[0]
         y2 = centro_circulo[1]
 
-        #Si el taladro entra al radio del ciruclo "colisiona" se acaba el juego
+        #Si el taladro entra al radio del circulo "colisiona" se acaba el juego
         if self.Distancia_Entre_2_Puntos(x1, y1, x2, y2) < radio_circulo:
             self.running = False
 
+    def Imprimir_Objetivo(self, pantalla, imagen_objetivo, pos_taladro):
+        pos_objetivo = [self.dimension_ventana[0]-100, self.dimension_ventana[1]/2-10]
+        #Consigue el ancho del objetivo de la imagen
+        ancho_objetivo = imagen_objetivo.get_rect().width
+        
+        #Primero Imprimimos el objetivo en la misma posicion:
+        imagen_objetivo.set_colorkey((54,255,0))
+        pantalla.blit(imagen_objetivo, (pos_objetivo[0], pos_objetivo[1]))
+
+        #Ahora comprobamos si taladro colisiona con la imagen objetivo para ganar el juego:
+        x1 = pos_taladro[0]
+        y1 = pos_taladro[1]
+        x2 = pos_objetivo[0]
+        y2 = pos_objetivo[1]
+        if x1 < x2 + ancho_objetivo and x1 > x2 and y1 < y2 + ancho_objetivo and y1 > y2:
+            print("Final juego ganas")
+            self.running = False
 
     def Taladro_Sale_Mapa(self, posicion_taladro):
         #Si el taladro sale de las Dimensiones del juego cierra izquierda y derecha:
@@ -205,7 +224,7 @@ class Perforacion:
                 if evento.type == pygame.QUIT:
                     self.running = False
 
-                #Miramos si se presiona q si se presiona invertimos la rotacion:
+                #Miramos si se presiona cualquier tecla si se presiona invertimos la rotacion:
                 if evento.type == pygame.KEYUP:
                     self.direccion = self.direccion*-1
 
@@ -218,7 +237,9 @@ class Perforacion:
 
             #Imprimimos obstaculos
             self.Imprimir_Obstaculo(self.postaladro, self.lista_pos_obstaculos, self.obstaculos_visibles)
-
+            
+            #Imprimimos el objetivo para ganar el juego:
+            self.Imprimir_Objetivo(self.pantalla, self.objetivo, self.postaladro)
             #Comprobamos que taladro colisiona con obstaculo si es asi cierra:
             self.Colision_Taladro(self.postaladro, self.lista_pos_obstaculos)
 
