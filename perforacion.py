@@ -315,6 +315,7 @@ class Perforacion:
 
         #Limpiando pygame
         pygame.quit()
+        exit()
         
 
 
